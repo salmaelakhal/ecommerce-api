@@ -1,6 +1,24 @@
 import "dotenv/config";
-import { PrismaClient } from "../generated/prisma/client";
+import { PrismaMariaDb } from "@prisma/adapter-mariadb";
+import { PrismaClient } from "../../generated/prisma/client";
 
-const prisma = new PrismaClient();
+const {
+  DATABASE_HOST,
+  DATABASE_USER,
+  DATABASE_PASSWORD,
+  DATABASE_NAME,
+} = process.env;
 
-export { prisma };
+if (!DATABASE_HOST || !DATABASE_USER || !DATABASE_PASSWORD || !DATABASE_NAME) {
+  throw new Error("Missing database environment variables");
+}
+
+const adapter = new PrismaMariaDb({
+  host: DATABASE_HOST,
+  user: DATABASE_USER,
+  password: DATABASE_PASSWORD,
+  database: DATABASE_NAME,
+  connectionLimit: 5,
+});
+
+export const prisma = new PrismaClient({ adapter });
