@@ -1,10 +1,15 @@
-import type { Request, Response } from "express";
+import type { NextFunction, Request, Response } from "express";
 import { prisma } from "../lib/prisma";
 import { compareSync, hashSync } from "bcrypt";
 import jwt from "jsonwebtoken";
 import { JWT_SECRET } from "../secrets";
+import { ErrorCode } from "../exceptions/root";
+import { BadRequestsException } from "../exceptions/bad-requests";
+import { UnprocessableEntity } from "../exceptions/validation";
 
-export const signup = async (req: Request, res: Response) => {
+export const signup = async (req: Request, res: Response, next:NextFunction) => {
+
+  try {
   const { name, email, password } = req.body;
 
   let user = await prisma.user.findFirst({
@@ -12,7 +17,8 @@ export const signup = async (req: Request, res: Response) => {
   });
 
   if (user) {
-    return res.status(400).json({ message: "User already exists" });
+    next(new BadRequestsException("User already exists", ErrorCode.USER_ALREADY_EXISTS));
+    return;
   }
 
   user = await prisma.user.create({
@@ -24,6 +30,9 @@ export const signup = async (req: Request, res: Response) => {
   });
 
   res.status(201).json(user);
+} catch (err:any) {
+  next(new UnprocessableEntity(err?.issues, "Unprocessable Entity", ErrorCode.Unprocessable_Entity));
+}
 };
 
 // login

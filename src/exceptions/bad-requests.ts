@@ -1,5 +1,5 @@
-import type { ErrorCode, HttpException } from "./rool";
-
+import { HttpException } from "./root";     
+import type { ErrorCode } from "./root";    
 
 
 export class BadRequestsException extends HttpException  {
