@@ -19,11 +19,12 @@ export enum ErrorCode {
     USER_NOT_FOUND = 1001,
     USER_ALREADY_EXISTS = 1002,
     INCORRECT_PASSWORD  = 1003,
-    Unprocessable_Entity = 1009,
+    Unprocessable_Entity = 2001,
+    INTERNAL_EXCEPTION = 3001,
+
 
     INVALID_TOKEN = 1004,
     UNAUTHORIZED = 1005,
     FORBIDDEN = 1006,
     VALIDATION_ERROR = 1007,
-    INTERNAL_SERVER_ERROR = 1008
 }

@@ -6,10 +6,10 @@ import { JWT_SECRET } from "../secrets";
 import { ErrorCode } from "../exceptions/root";
 import { BadRequestsException } from "../exceptions/bad-requests";
 import { UnprocessableEntity } from "../exceptions/validation";
+import { signUpSchema } from "../schema/users";
 
-export const signup = async (req: Request, res: Response, next:NextFunction) => {
-
-  try {
+export const signup = async (req: Request,res: Response,next: NextFunction,) => {
+  signUpSchema.parse(req.body);
   const { name, email, password } = req.body;
 
   let user = await prisma.user.findFirst({
@@ -17,7 +17,12 @@ export const signup = async (req: Request, res: Response, next:NextFunction) => 
   });
 
   if (user) {
-    next(new BadRequestsException("User already exists", ErrorCode.USER_ALREADY_EXISTS));
+    next(
+      new BadRequestsException(
+        "User already exists",
+        ErrorCode.USER_ALREADY_EXISTS,
+      ),
+    );
     return;
   }
 
@@ -30,9 +35,6 @@ export const signup = async (req: Request, res: Response, next:NextFunction) => 
   });
 
   res.status(201).json(user);
-} catch (err:any) {
-  next(new UnprocessableEntity(err?.issues, "Unprocessable Entity", ErrorCode.Unprocessable_Entity));
-}
 };
 
 // login
@@ -52,12 +54,12 @@ export const login = async (req: Request, res: Response) => {
     throw Error("Invalid password");
   }
 
-  const token = jwt.sign({
+  const token = jwt.sign(
+    {
       userId: user.id,
     },
     JWT_SECRET,
-    { expiresIn: "1h" }
-    
+    { expiresIn: "1h" },
   );
 
   res.json({ user, token });

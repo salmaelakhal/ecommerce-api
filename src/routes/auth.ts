@@ -1,9 +1,11 @@
-import  { Router } from 'express';
+import express from 'express';
+import type { Router } from 'express';
 import { login, signup } from '../controllers/auth';
+import { errorHandler } from '../error-handler';
 
-const authRoutes :Router = Router();
+const authRoutes: Router = express.Router();
 
-authRoutes.post('/signup', signup);
-authRoutes.post('/login', login);
+authRoutes.post('/signup', errorHandler(signup));
+authRoutes.post('/login', errorHandler(login));
 
 export default authRoutes;

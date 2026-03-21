@@ -1,7 +1,6 @@
 import "dotenv/config";
 import { PrismaMariaDb } from "@prisma/adapter-mariadb";
 import { PrismaClient } from "../../generated/prisma/client";
-import { signUpSchema } from "../schema/users";
 
 const {
   DATABASE_HOST,
@@ -22,16 +21,4 @@ const adapter = new PrismaMariaDb({
   connectionLimit: 5,
 });
 
-export const prisma = new PrismaClient({ adapter }).$extends({
-  query: {
-    user: {
-      create({args, query}) {
-        args.data = signUpSchema.parse(args.data);
-        return query(args);
-      },
-    },
-  },
-});
-
-
-;
+export const prisma = new PrismaClient({ adapter });
