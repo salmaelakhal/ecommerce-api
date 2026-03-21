@@ -1,22 +1,15 @@
-# TODO - Fix Prisma MySQL Issue (standard DATABASE_URL)
+# Fix Socket Hang Up on /auth/me - Progress Tracker
 
-**Status: En cours**
+## Plan Summary
+- Fix auth middleware bug (empty catch causing hangs).
+- Correct Postman URL (/api prefix).
+- Test with fresh token.
 
-## Étapes:
+## Steps
+- [x] 1. Fix src/middlewares/auth.ts: Add proper error handling in catch block (added Bearer support, prisma import, better messages).
+- [x] 2. Restart server (`npm start` - since dev script missing).
+- [ ] 3. Update Postman: baseUrl=http://localhost:3000, URL={{baseUrl}}/api/auth/me, Authorization: <raw_token>.
+- [ ] 4. Test login → /me, verify 200 with user data.
+- [ ] 5. Optional: Add Bearer support, health endpoint.
 
-- [x] 1. Diagnostiquer problème (types env undefined → PrismaMariaDb strict)
-
-- [x] 2. Éditer src/lib/prisma.ts : Passer à standard PrismaClient (MySQL natif, sans adapter)
-
-- [x] 3. Vérifier/créer .env avec DATABASE_URL="mysql://user:pass@host:port/dbname" (existe déjà)
-
-- [x] 4. Exécuter `npx prisma generate` (fait)
-
-- [x] 5. Tester `npm start` (serveur démarre OK sur port 3000, pas d'erreur TS)
-
-- [x] 6. Ajouter test query si besoin (optionnel)
-
-**Note**: Schema "mysql" sync (db push OK). Client généré.
-
-**TODO TERMINÉ ✅** Problème résolu : prisma.ts standardisé.
-
+Current: Starting step 1.

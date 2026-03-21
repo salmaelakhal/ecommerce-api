@@ -7,6 +7,7 @@ import { ErrorCode } from "../exceptions/root";
 import { BadRequestsException } from "../exceptions/bad-requests";
 import { UnprocessableEntity } from "../exceptions/validation";
 import { signUpSchema } from "../schema/users";
+import { NotfoundException } from "../exceptions/not-found";
 
 export const signup = async (req: Request,res: Response,next: NextFunction,) => {
   signUpSchema.parse(req.body);
@@ -17,14 +18,10 @@ export const signup = async (req: Request,res: Response,next: NextFunction,) => 
   });
 
   if (user) {
-    next(
       new BadRequestsException(
         "User already exists",
         ErrorCode.USER_ALREADY_EXISTS,
-      ),
-    );
-    return;
-  }
+      )}
 
   user = await prisma.user.create({
     data: {
@@ -37,8 +34,8 @@ export const signup = async (req: Request,res: Response,next: NextFunction,) => 
   res.status(201).json(user);
 };
 
+////////////////////////////////////////////////////////////////
 // login
-
 export const login = async (req: Request, res: Response) => {
   const { email, password } = req.body;
 
@@ -47,11 +44,11 @@ export const login = async (req: Request, res: Response) => {
   });
 
   if (!user) {
-    throw Error("User not found");
+    throw new NotfoundException("User not found", ErrorCode.USER_NOT_FOUND);
   }
 
   if (!compareSync(password, user.password)) {
-    throw Error("Invalid password");
+    throw new BadRequestsException("Incorrect password", ErrorCode.INCORRECT_PASSWORD);
   }
 
   const token = jwt.sign(
@@ -64,3 +61,13 @@ export const login = async (req: Request, res: Response) => {
 
   res.json({ user, token });
 };
+
+
+
+///////////////////
+//me -> return the logged in user
+export const me = async (req: Request, res: Response) => {
+
+
+  res.json(req.user);
+};   
