@@ -23,6 +23,7 @@ const authMiddleware = async (req: Request, res: Response, next: NextFunction) =
         if (!user) {
             return next(new UnauthorizedException("User not found", ErrorCode.UNAUTHORIZED, 1002));
         }
+        
         // 5. add the user to the request object and call next()
         req.user = user;
         next();

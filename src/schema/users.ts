@@ -12,11 +12,13 @@ export const AddressSchema = z.object({
   pincode: z.string().min(6).max(6),
   country: z.string().min(3).max(255),
   city: z.string().min(3).max(255),
-  userId: z.number(),
+  // userId: z.number(),
 });
 
-// export const loginSchema = z.object({
-//   email: z.string().email(),
-//   password: z.string().min(6).max(255),
-// });
+export const UpdateUserSchema = z.object({
+  name: z.string().min(3).max(255).optional(),
+  defaultShippingAddress: z.number().optional(),
+  defaultBillingAddress: z.number().optional(),
+});
 
+ 
