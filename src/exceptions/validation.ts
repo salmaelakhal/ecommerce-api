@@ -1,7 +1,7 @@
 import { HttpException, ErrorCode } from "./root";
 
 export class UnprocessableEntity extends HttpException {
-  constructor(error: any, message: string, errorCode: ErrorCode) {
-    super(message, errorCode, 422, error);
+  constructor(message: string = "Validation failed", errors?: any) {
+    super(message, ErrorCode.Unprocessable_Entity, 422, errors);
   }
 }
