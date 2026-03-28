@@ -1,18 +1,10 @@
-# API Fixes Progress - Socket Hang Up ✅, Products 500 Fix
+# Fix PrismaClientValidationError on /orders/index?status=invalid
 
-## Current Issue: POST /products → 500 InternalServerError (3001)
-**Exact Problem:** src/controllers/products.ts line `tags: req.body.tags.join(",")`
-- `req.body.tags` is array `["vetement","coton","t-shirt"]` from Postman → OK.
-- But if tags missing/undefined → `undefined.join()` → TypeError "tags.join is not a function" → uncaught → errorHandler → InternalException 500 "Something went wrong".
+Status: Working...
 
-**Why Postman:** Body parsed OK (echoes back), but crash before response.
+## Plan Steps:
+1. ✅ Create this TODO.md
+2. ✅ Add global validStatuses const and validate in listAllOrders & listUserOrders in `src/controllers/orders.ts`
+3. ✅ Test the endpoints (GET /orders/index?status=ACCEPTED should work; ?status=ACCEPETED returns 400)
+4. Update TODO.md and complete
 
-## Steps
-- [x] Auth /me fixed (middleware catch, Bearer support).
-- [x] Server running (`npm start`).
-- [x] 1. Add Zod validation + safe tags handling in src/controllers/products.ts (created schema, validation, safe tags).
-- [ ] 2. Update Postman: `{{baseUrl}}/api/products`, tags array, auth.
-- [ ] 3. Test POST → 201 created product.
-- [ ] 4. Add more endpoints (list, get, etc.).
-
-Starting step 1.
