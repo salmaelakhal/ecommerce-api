@@ -4,6 +4,9 @@ import { ErrorCode } from "../exceptions/root";
 
 import { prisma, prismaBase } from "../lib/prisma";
 
+const validStatuses = ['PENDING', 'ACCEPTED', 'OUT_FOR_DELIVERY', 'DELIVERED', 'CANCELLED'] as const;
+type OrderEventStatus = typeof validStatuses[number];
+
 export const createOrder = async (req: Request, res: Response) => {
   return await prismaBase.$transaction(async (tx) => {
     const cartItems = await tx.cartItem.findMany({
@@ -115,4 +118,81 @@ export const getOrderById = async (req: Request, res: Response) => {
   } catch (error) {
     throw new NotfoundException("Order not found", ErrorCode.ORDER_NOT_FOUND);
   }
+};
+
+export const listAllOrders = async (req: Request, res: Response) => {
+  let whereClause = {};
+  const status = (req.query.status as string) || undefined;
+
+  if (status && !validStatuses.includes(status as OrderEventStatus)) {
+    return res.status(400).json({ 
+      message: `Invalid status '${status}'. Valid values: ${validStatuses.join(', ')}`,
+      errorCode: 4001
+    });
+  }
+
+  if (status) {
+    whereClause = {
+      status: status as OrderEventStatus,
+    };
+  }
+
+  const orders = await prisma.order.findMany({
+    where: whereClause,
+    skip: +req.query.skip || 0,
+    take: 5,
+  });
+  res.json(orders);
+};
+export const changeOrderStatus = async (req: Request, res: Response) => {
+  // wrap it inside transaction
+  try {
+    const order = await prisma.order.update({
+      where: {
+        id: +req.params.id,
+      },
+      data: {
+        status: req.body.status,
+      },
+    });
+
+    await prisma.orderEvent.create({
+      data: {
+        orderId: order.id,
+        status: req.body.status,
+        message: "Order status changed",
+      },
+    });
+
+    res.json(order);
+  } catch (error) {
+    throw new NotfoundException("Order not found", ErrorCode.ORDER_NOT_FOUND);
+  }
+};
+export const listUserOrders = async (req: Request, res: Response) => {
+  let whereClause: any = {
+    userId: +req.params.id,
+  };
+  const status = (req.query.status as string) || undefined;
+
+  if (status && !validStatuses.includes(status as OrderEventStatus)) {
+    return res.status(400).json({ 
+      message: `Invalid status '${status}'. Valid values: ${validStatuses.join(', ')}`,
+      errorCode: 4001
+    });
+  }
+
+  if (status) {
+    whereClause = {
+      ...whereClause,
+      status: status as OrderEventStatus,
+    };
+  }
+
+  const orders = await prisma.order.findMany({
+    where: whereClause,
+    skip: +req.query.skip || 0,
+    take: 5,
+  });
+  res.json(orders);
 };
