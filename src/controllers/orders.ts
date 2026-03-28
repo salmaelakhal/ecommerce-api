@@ -57,8 +57,62 @@ export const createOrder = async (req: Request, res: Response) => {
   });
 };
 
-export const listOrders = async (req: Request, res: Response) => {};
+export const listOrders = async (req: Request, res: Response) => {
+  const orders = await prisma.order.findMany({
+    where: { userId: req.user!.id },
+  });
+  res.json(orders);
+};
 
-export const cancelOrder = async (req: Request, res: Response) => {};
+export const cancelOrder = async (req: Request, res: Response) => {
+  try {
+    await prismaBase.$transaction(async (tx) => {
+      // ✅ Vérifie que c'est la commande de l'user
+      const existingOrder = await tx.order.findFirstOrThrow({
+        where: {
+          id: +req.params.id,
+          userId: req.user!.id, // ✅ ownership check
+        },
+      });
 
-export const getOrderById = async (req: Request, res: Response) => {};
+      // ✅ Vérifie que la commande n'est pas déjà annulée
+      if (existingOrder.status === "CANCELLED") {
+        return res.status(400).json({ message: "Order already cancelled" });
+      }
+
+      const order = await tx.order.update({
+        where: { id: +req.params.id },
+        data: { status: "CANCELLED" },
+      });
+
+      await tx.orderEvent.create({
+        data: {
+          orderId: order.id,
+          status: "CANCELLED",
+          message: "Order cancelled",
+        },
+      });
+
+      res.json(order);
+    });
+  } catch (error) {
+    throw new NotfoundException("Order not found", ErrorCode.ORDER_NOT_FOUND);
+  }
+};
+
+export const getOrderById = async (req: Request, res: Response) => {
+  try {
+    const order = await prisma.order.findFirstOrThrow({
+      where: {
+        id: +req.params.id,
+      },
+      include: {
+        products: true,
+        events: true,
+      },
+    });
+    res.json(order);
+  } catch (error) {
+    throw new NotfoundException("Order not found", ErrorCode.ORDER_NOT_FOUND);
+  }
+};

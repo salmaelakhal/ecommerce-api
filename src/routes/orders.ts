@@ -8,7 +8,7 @@ const orderRoutes : Router = Router();
 
 orderRoutes.post('/', [authMiddleware, errorHandler(createOrder)]);
 orderRoutes.get('/', [authMiddleware, errorHandler(listOrders)]);
-orderRoutes.put('/:id', [authMiddleware, errorHandler(cancelOrder)]);
+orderRoutes.put('/:id/cancel', [authMiddleware, errorHandler(cancelOrder)]);
 orderRoutes.get('/:id', [authMiddleware, errorHandler(getOrderById)]);
 
 export default orderRoutes;

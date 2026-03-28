@@ -29,5 +29,7 @@ export enum ErrorCode {
 
     PRODUCT_NOT_FOUND = 2002,
 
+    ORDER_NOT_FOUND = 6002,
+
 
 }
