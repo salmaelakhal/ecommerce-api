@@ -106,3 +106,4 @@ export const searchProducts = async (req: Request, res: Response) => {
     });
     res.json(products);
 }
+////
